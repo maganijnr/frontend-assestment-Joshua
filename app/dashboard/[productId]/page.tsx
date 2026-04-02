@@ -1,8 +1,6 @@
 "use client";
 import MaxWidthWrapper from "@/components/molecules/max-width-wrapper";
-import apiClient from "@/lib/api.client";
 import { formatCurrency } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Star1, Box, Tag, InfoCircle } from "iconsax-reactjs";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,6 +9,7 @@ import { useState } from "react";
 import Button from "@/components/atom/button";
 import ProductDetailSkeleton from "@/components/molecules/product-detail-skeleton";
 import { useAppStore } from "@/store/app-store";
+import useProductsApi from "@/hooks/use-products-api";
 
 function ProductDetailPage() {
   const { productId } = useParams();
@@ -19,25 +18,15 @@ function ProductDetailPage() {
 
   const { cart, addToCart, removeFromCart, updateQuantity } = useAppStore();
 
-  const {
-    isLoading,
-    data: product,
-    error,
-  } = useQuery({
-    queryKey: ["fetch-product-by-id", productId],
-    queryFn: async () => {
-      const response = await apiClient.fetchProductById(productId as string);
-      return response;
-    },
-    enabled: !!productId,
-    retry: 1,
+  const { productLoading, product, productError } = useProductsApi({
+    productId: productId as string,
   });
 
-  if (isLoading) {
+  if (productLoading) {
     return <ProductDetailSkeleton />;
   }
 
-  if (error || !product) {
+  if (productError || !product) {
     return (
       <div className="w-full min-h-[60vh] flex flex-col items-center justify-center gap-4">
         <h2 className="text-xl font-semibold">

@@ -22,6 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${poppins.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://cdn.dummyjson.com" crossOrigin="anonymous" />
+      </head>
       <ReactQueryProvider>
         <body className="min-h-full flex flex-col">{children}</body>
       </ReactQueryProvider>

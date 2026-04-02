@@ -25,7 +25,7 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="relative text-white group flex items-center gap-2 transition-transform hover:scale-105 active:scale-95">
+          <button aria-label="Cart" className="relative text-white group flex items-center gap-2 transition-transform hover:scale-105 active:scale-95">
             <div className="relative">
               <ShoppingCart size={24} variant="Outline" />
               {mounted && totalItems > 0 && (
