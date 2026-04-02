@@ -7,7 +7,7 @@ import Image from "next/image";
 import Button from "../atom/button";
 import Link from "next/link";
 
-export default function Card({ product }: { product: Product }) {
+export default function Card({ product, priority = false }: { product: Product, priority?: boolean }) {
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -31,6 +31,8 @@ export default function Card({ product }: { product: Product }) {
             src={product?.thumbnail}
             alt={product?.title}
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={priority}
             className="object-cover"
             onError={() => setImgError(true)}
           />

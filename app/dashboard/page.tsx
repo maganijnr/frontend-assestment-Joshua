@@ -2,15 +2,16 @@
 import MaxWidthWrapper from "@/components/molecules/max-width-wrapper";
 import PageLoader from "@/components/molecules/page-loader";
 import ProductList from "@/components/organisms/product-list";
-import apiClient from "@/lib/api.client";
 import { Product } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Button from "@/components/atom/button";
 
-import FilterSheet from "@/components/organisms/filter-sheet";
+import dynamic from "next/dynamic";
+const FilterSheet = dynamic(() => import("@/components/organisms/filter-sheet"), { ssr: false });
 import Input from "@/components/atom/input";
+import useProductsApi from "@/hooks/use-products-api";
+import { Setting3 } from "iconsax-reactjs";
 
 function DashboardPage() {
   const searchParams = useSearchParams();
@@ -48,31 +49,11 @@ function DashboardPage() {
 
   const limit = 20;
 
-  const { isLoading, data, isRefetching } = useQuery({
-    queryKey: ["fetch-all-products", skip, search, category],
-    queryFn: async () => {
-      const response = await apiClient.fetchAllProducts({
-        limit: limit,
-        skip: skip,
-        search: search,
-        category: category,
-      });
-      return response;
-    },
-    retry: 1,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-  });
-
-  const { data: categories, isLoading: categoriesLoading } = useQuery({
-    queryKey: ["fetch-product-categories"],
-    queryFn: async () => {
-      const response = await apiClient.fetchProductCategories();
-      return response;
-    },
-    retry: 1,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
+  const { isLoading, data, categories, categoriesLoading } = useProductsApi({
+    limit,
+    skip,
+    search,
+    category,
   });
 
   const productList: Product[] = data?.products ?? [];
@@ -95,7 +76,7 @@ function DashboardPage() {
     const params = new URLSearchParams(searchParams.toString());
     if (newCategory) {
       params.set("category", newCategory);
-      params.delete("q"); // Search and category may conflict, clear search
+      params.delete("q");
       setSearchInput("");
     } else {
       params.delete("category");
@@ -137,18 +118,7 @@ function DashboardPage() {
               onClick={() => setIsFilterOpen(true)}
               className="flex items-center gap-2 px-3"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <Setting3 />
               Filter
             </Button>
           </div>
@@ -181,10 +151,7 @@ function DashboardPage() {
           </div>
         )}
 
-        <ProductList
-          products={productList}
-          isLoading={isLoading || isRefetching}
-        />
+        <ProductList products={productList} isLoading={isLoading} />
 
         {!isLoading && total > 0 && (
           <div className="flex justify-between items-center mt-8 p-4 bg-white rounded-lg shadow-sm border border-gray-100">

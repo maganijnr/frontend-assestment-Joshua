@@ -31,8 +31,8 @@ function ProductList({
 
       {!isLoading && products.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {products.map((product) => (
-            <Card key={product?.id} product={product} />
+          {products.map((product, index) => (
+            <Card key={product?.id} product={product} priority={index < 4} />
           ))}
         </div>
       )}
