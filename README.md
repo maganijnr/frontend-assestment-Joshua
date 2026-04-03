@@ -6,8 +6,6 @@ A test project for the **Proc360** frontend developer role, built with **Next.js
 
 ## 🚀 Quick Start
 
-Get up and running in under 5 commands:
-
 ```bash
 # 1. Clone the repository
 git clone <repo-url> proc360-test && cd proc360-test
@@ -26,25 +24,31 @@ bun dev
 This project follows a structured, modular architecture tailored to create a scalable and maintainable Next.js application.
 
 ### 1. Components (Atomic Design Pattern)
+
 Our UI components are organized intuitively inside the `components` folder using the **Atomic Design** philosophy.
+
 - **`atoms/`** (e.g., `button.tsx`, `input.tsx`): The foundational building blocks of the UI.
 - **`molecules/`** (e.g., `card.tsx`, `search-bar.tsx`): Simple groups of UI elements functioning together as a unit.
 - **`organisms/`** (e.g., `header.tsx`, `product-list.tsx`): Complex UI sections built by combining atoms and molecules.
-**Why this pattern?** It promotes exceptional reusability, predictability, and consistent visual language across the app.
+  **Why this pattern?** It promotes exceptional reusability, predictability, and consistent visual language across the app.
 
 ### 2. Hooks (Data Fetching with React Query)
+
 Custom hooks such as `use-products-api.tsx` encapsulate all server state management.
 **Why this pattern?** We leverage `@tanstack/react-query` to decouple server data fetching from UI logic. It gives us out-of-the-box caching, background refetching, request deduplication, and loading/error states, vastly enhancing performance and user experience over raw `useEffect` approaches.
 
 ### 3. Lib (API Abstractions & Utilities)
+
 The `lib/` directory contains our core API interactions (`api.client.ts`, `axios.instance.ts`), global definitions (`types.ts`), and helper functions (`utils.ts`).
-**Why this pattern?** By abstracting network requests via a centralized `axios` instance and custom client methods, we ensure a single source of truth for endpoints, easy injection of interceptors (e.g. for auth tokens), and strict TypeScript typing for API responses. 
+**Why this pattern?** By abstracting network requests via a centralized `axios` instance and custom client methods, we ensure a single source of truth for endpoints, easy injection of interceptors (e.g. for auth tokens), and strict TypeScript typing for API responses.
 
 ### 4. Providers (Next.js Client Boundaries)
+
 The `providers/` directory groups essential React context wrappers (like `react-query-provider.tsx`).
 **Why this pattern?** Next.js App Router heavily leans on Server Components. Putting providers in their own client-side modules allows us to keep our `layout.tsx` clean and ensure contexts are correctly instantiated at the client boundary.
 
 ### 5. Store (Client State with Zustand)
+
 Our application state, spanning global features like the Shopping Cart, is managed in `store/app-store.ts` using **Zustand**.
 **Why this pattern?** Zustand is used for its minimalist, boilerplate-free API compared to Redux or Context API. We utilized its `persist` middleware to instantly save and hydrate user cart data utilizing `localStorage`, ensuring the state naturally survives page reloads with minimal code.
 
@@ -54,7 +58,7 @@ Our application state, spanning global features like the Shopping Cart, is manag
 
 To ensure the application runs incredibly fast and delivers a seamless User Experience, several Next.js and library-level performance optimizations were applied:
 
-1. **Automatic Image Optimization (`next/image`)**  
+1. **Automatic Image Optimization (`next/image`)**
    - **Where**: `components/molecules/card.tsx`, `components/organisms/product-list.tsx`
    - **What & Why**: Instead of standard `<img>` tags, `next/image` is used with `sizes` enabled. This automatically serves correctly sized images in modern formats (like WebP/AVIF), preventing large payload bottlenecks. Priority loading (`priority={index < 4}`) was added to the first 4 "above the fold" products to directly mitigate Largest Contentful Paint (LCP) delays. We also implement an `onError` image fallback so broken images don’t degrade the UI.
 
@@ -66,19 +70,19 @@ To ensure the application runs incredibly fast and delivers a seamless User Expe
    - **Where**: `app/layout.tsx`
    - **What & Why**: To preemptively establish DNS lookup and SSL handshakes for external CDNs (like `cdn.dummyjson.com`), an explicit preconnect link tag was placed in the global layout header. This speeds up the loading of all product images over the network.
 
-2. **Route Prefetching (`next/link`)**  
+4. **Route Prefetching (`next/link`)**
    - **Where**: `components/molecules/card.tsx`
    - **What & Why**: For internal navigation (like opening a product page), we use Next.js's `<Link>` wrapper. It automatically prefetches the linked routes in the background when the link enters the viewport. As a result, page transitions feel instantaneous.
 
-3. **Font Optimization (Zero Layout Shift)**  
+5. **Font Optimization (Zero Layout Shift)**
    - **Where**: `app/layout.tsx`
    - **What & Why**: The application imports the `Poppins` font via `next/font/google` using `display: "swap"`. Next.js hosts the font self-contained at build time rather than making external network requests to Google. This drastically reduces the time to first paint and completely removes Cumulative Layout Shift (CLS) when fonts finally load.
 
-4. **Intelligent Network Catching & Deduplication**  
+6. **Intelligent Network Catching & Deduplication**
    - **Where**: `hooks/use-products-api.tsx`
    - **What & Why**: We heavily optimized `@tanstack/react-query` settings by explicitly declaring `refetchOnWindowFocus: false` and `refetchOnMount: false` for certain high-frequency endpoints (e.g. searching products). This prevents redundant API hit spam when users switch browser tabs or remount components.
 
-8. **Client Caching via Local Storage**  
+7. **Client Caching via Local Storage**
    - **Where**: `store/app-store.ts`
    - **What & Why**: We utilize Zustand’s `persist` middleware. This syncs the Shopping Cart state offline in `localStorage` in real-time. It completely bypasses the need to initialize server data for cart persistence on hard refreshes, granting users an uninterrupted session.
 
